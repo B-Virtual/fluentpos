@@ -16,18 +16,30 @@ using FluentPOS.Shared.Core.Features.Common.Filters;
 using FluentPOS.Shared.DTOs.Catalogs.Categories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace FluentPOS.Modules.Catalog.Controllers
 {
     [ApiVersion("1")]
     internal sealed class CategoriesController : BaseController
     {
+        private readonly IStringLocalizer<CategoriesController> _localizer;
+        public CategoriesController(IStringLocalizer<CategoriesController> localizer) {
+            _localizer = localizer;
+        }
+
         [HttpGet]
         [Authorize(Policy = Permissions.Categories.ViewAll)]
         public async Task<IActionResult> GetAllAsync([FromQuery] PaginatedCategoryFilter filter)
         {
             var request = Mapper.Map<GetCategoriesQuery>(filter);
             var categories = await Mediator.Send(request);
+
+            foreach (var item in categories.Data)
+            {
+                item.Name = $"{item.Name} {_localizer["tester"]}";
+            }
+
             return Ok(categories);
         }
 

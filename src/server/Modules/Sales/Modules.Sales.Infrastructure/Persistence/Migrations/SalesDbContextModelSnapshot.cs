@@ -82,6 +82,9 @@ namespace FluentPOS.Modules.Sales.Infrastructure.Persistence.Migrations
                     b.Property<decimal>("Discount")
                         .HasColumnType("numeric");
 
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
 

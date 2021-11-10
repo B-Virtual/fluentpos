@@ -1,12 +1,18 @@
 import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { AccountApiService } from 'src/app/core/api/accounting/account-api.service';
+import { PaymentApiService } from 'src/app/core/api/accounting/payment-api.service';
 import { CartApiService } from 'src/app/core/api/cart/cart-api.service';
 import { CartItemsApiService } from 'src/app/core/api/cart/cart-items-api.service';
 import { CartItemApiModel } from 'src/app/core/models/cart/cart-item';
+import { Account } from '../models/account';
 import { CartItem } from '../models/cart';
 import { Customer } from '../models/customer';
 import { Product } from '../models/product';
+import { map } from 'rxjs/operators';
+import { IResult } from 'src/app/core/models/wrappers/IResult';
+import { AccountApiModel } from 'src/app/core/models/accounting/account';
 
 @Injectable({
   providedIn: 'root'
@@ -16,11 +22,14 @@ export class CartService {
   private cartItems: CartItem[] = [];
   public currentCustomer: Customer;
   public currentCustomer$ = new Subject<Customer>();
+  public currentAccount: Account;
+  public currentAccount$ = new Subject<Account>();
   public cartId: string;
   public isCartLoading: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  public isAccountLoading: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public isCartInvalid: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   public IsProductBeingAdded: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  constructor(private cartApi: CartApiService, private cartItemApi: CartItemsApiService, private cartItemsApi: CartItemsApiService, private toastr: ToastrService) { }
+  constructor(private cartApi: CartApiService, private accountApi: AccountApiService, private paymentApi: PaymentApiService, private cartItemApi: CartItemsApiService, private cartItemsApi: CartItemsApiService, private toastr: ToastrService) { }
   private updateCart(cartItemId: string, productId: string, quantity: number) {
     this.IsProductBeingAdded.next(true);
     var cartItem = new CartItemApiModel(this.cartId, productId, quantity);
@@ -50,6 +59,7 @@ export class CartService {
     this.cartId = null;
     this.isCartInvalid.next(true);
   }
+
   add(product: Product, quantity: number = 1) {
     if (!this.cartId) { return; }
 
@@ -125,6 +135,14 @@ export class CartService {
   getCurrentCustomer() {
     return this.currentCustomer$.asObservable();
   }
+  setCurrentAccount(account: Account) {
+    this.currentAccount = account;
+    this.currentAccount$.next(this.currentAccount);
+    this.isAccountLoading.next(false);
+  }
+    getCurrentAccount() {
+    return this.currentAccount$.asObservable();
+  }
   private calculate(cartItems: CartItem[]): CartItem[] {
     cartItems.forEach(function (part, index, theArray) {
       theArray[index].total = cartItems[index].quantity * cartItems[index].rate;
@@ -168,7 +186,55 @@ export class CartService {
           })
         }
       }
-
     });
+  }
+
+  getAccount(customerId: string) {
+    this.isAccountLoading.next(true);
+
+    this.accountApi.get(customerId).subscribe((result) => {
+      if(result && result.data) {
+        this.handleApiAccountModel(result.data);
+        this.isAccountLoading.next(false);
+      } else {
+        this.handleApiAccountModel(null);
+        this.isAccountLoading.next(false);
+      }
+    });
+  }
+
+  addPayment(amount: number) : Observable<Account>{
+    if(!this.currentCustomer) {return null;}
+
+    this.isAccountLoading.next(true);
+    this.paymentApi
+      .create(this.currentCustomer.id, amount)
+      .subscribe(result => {
+        if(result && result.succeeded) {
+          this.handleApiAccountModel(result.data);
+          this.isAccountLoading.next(false);
+        } else {
+          this.toastr.info('Payment failed.', '', {
+            positionClass: 'toast-top-right'
+          });
+          this.isAccountLoading.next(false);
+        }
+      });
+    return this.currentAccount$;
+  }
+
+  private handleApiAccountModel(accountModel: AccountApiModel) {
+    var account;
+    if(!accountModel) {
+      account = new Account(null, this.currentCustomer.name, 0, null);
+    } else {
+      account = new Account(accountModel.id, accountModel.holderName, accountModel.total, accountModel.lastPayment);
+    }
+
+    accountModel.payments.forEach(element => {
+      account.addPayment(element.id, element.amount, element.timestamp);
+    });
+    this.currentAccount = account;
+    this.currentAccount$.next(this.currentAccount);
   }
 }

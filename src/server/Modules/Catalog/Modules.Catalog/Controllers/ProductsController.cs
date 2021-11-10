@@ -16,6 +16,7 @@ using FluentPOS.Shared.Core.Features.Common.Filters;
 using FluentPOS.Shared.DTOs.Catalogs.Products;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace FluentPOS.Modules.Catalog.Controllers
 {

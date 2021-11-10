@@ -213,5 +213,17 @@ namespace FluentPOS.Shared.Core.Constants
             public const string Update = "Permissions.Sales.Update";
             public const string Remove = "Permissions.Sales.Remove";
         }
+
+        [DisplayName("Accounting")]
+        [Description("Accounting Permissions")]
+        public static class Accounting
+        {
+            public const string View = "Permissions.Accounting.View";
+            public const string ViewAll = "Permissions.Accounting.ViewAll";
+            public const string Register = "Permissions.Accounting.Register";
+            public const string Update = "Permissions.Accounting.Update";
+            public const string Remove = "Permissions.Accounting.Remove";
+        }
+
     }
 }

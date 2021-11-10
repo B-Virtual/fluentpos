@@ -69,6 +69,7 @@ namespace FluentPOS.Modules.Sales.Core.Entities
             Products.Add(new Product
             {
                 ProductId = productId,
+                Name = name,
                 Quantity = quantity,
                 Tax = tax * quantity,
                 Price = quantity * rate,

@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentPOS.Modules.Sales.Core.Abstractions;
 using FluentPOS.Modules.Sales.Core.Entities;
+using FluentPOS.Modules.Sales.Core.Interfaces;
 using FluentPOS.Shared.Core.IntegrationServices.Application;
 using FluentPOS.Shared.Core.IntegrationServices.Catalog;
 using FluentPOS.Shared.Core.IntegrationServices.Inventory;
@@ -25,6 +26,7 @@ namespace FluentPOS.Modules.Sales.Core.Features.Sales.Commands
         IRequestHandler<RegisterSaleCommand, Result<Guid>>
     {
         private readonly IEntityReferenceService _referenceService;
+        private readonly IOrderFactory _orderFactory;
         private readonly IStockService _stockService;
         private readonly ICartService _cartService;
         private readonly IProductService _productService;
@@ -37,7 +39,8 @@ namespace FluentPOS.Modules.Sales.Core.Features.Sales.Commands
             ICartService cartService,
             IProductService productService,
             IStockService stockService,
-            IEntityReferenceService referenceService)
+            IEntityReferenceService referenceService,
+            IOrderFactory orderFactory)
         {
             _localizer = localizer;
             _salesContext = salesContext;
@@ -45,15 +48,13 @@ namespace FluentPOS.Modules.Sales.Core.Features.Sales.Commands
             _productService = productService;
             _stockService = stockService;
             _referenceService = referenceService;
+            _orderFactory = orderFactory;
         }
 
 #pragma warning disable RCS1046 // Asynchronous method name should end with 'Async'.
         public async Task<Result<Guid>> Handle(RegisterSaleCommand command, CancellationToken cancellationToken)
 #pragma warning restore RCS1046 // Asynchronous method name should end with 'Async'.
         {
-            var order = Order.InitializeOrder();
-            string referenceNumber = await _referenceService.TrackAsync(order.GetType().Name);
-            order.SetReferenceNumber(referenceNumber);
             var cartDetails = await _cartService.GetDetailsAsync(command.CartId);
 
             // Do all mandatory null checks
@@ -62,7 +63,8 @@ namespace FluentPOS.Modules.Sales.Core.Features.Sales.Commands
             if (cartDetails.Data.CartItems == null) throw new Exception("Empty Cart!");
             var customer = cartDetails.Data.Customer;
 
-            order.AddCustomer(customer);
+            var order = await _orderFactory.CreateOrder(customer);
+
             foreach (var item in cartDetails.Data.CartItems)
             {
                 var productResponse = await _productService.GetDetailsAsync(item.ProductId);

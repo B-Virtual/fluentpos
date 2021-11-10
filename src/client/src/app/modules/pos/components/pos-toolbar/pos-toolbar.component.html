@@ -19,6 +19,10 @@
             <span style="margin-right: 10px;" class="fas fa-user-circle"></span>
             {{customer.name}}
         </a>
+        <a *ngIf="account" color="accent" (click)="openPaymentForm()" mat-raised-button style="font-weight:lighter;font-size: small; border-radius: 4px 0px 0px 4px!important;" translate>
+          <span style="margin-right: 10px;" class="fas fa-euro-sign"></span>
+          {{account.total}}
+        </a>
 
         <button mat-icon-button (click)="cart.toggle()">
             <mat-icon matBadge="{{cartItemCount}}" matBadgeColor="warn">shopping_cart</mat-icon>

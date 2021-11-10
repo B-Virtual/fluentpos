@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace FluentPOS.Shared.DTOs.Sales.Orders
 {
@@ -10,6 +7,7 @@ namespace FluentPOS.Shared.DTOs.Sales.Orders
         Guid OrderId,
         Guid ProductId,
         int Quantity,
+        string Name,
         string Category,
         string Brand,
         decimal Price,

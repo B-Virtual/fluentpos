@@ -1,12 +1,6 @@
-﻿// --------------------------------------------------------------------------------------------------
-// <copyright file="GetCustomerByIdQuery.cs" company="FluentPOS">
-// Copyright (c) FluentPOS. All rights reserved.
-// The core team: Mukesh Murugan (iammukeshm), Chhin Sras (chhinsras), Nikolay Chebotov (unchase).
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-// </copyright>
-// --------------------------------------------------------------------------------------------------
-
-using System;
+﻿using System;
+using FluentPOS.Modules.People.Core.Entities;
+using FluentPOS.Shared.Core.Constants;
 using FluentPOS.Shared.Core.Queries;
 using FluentPOS.Shared.Core.Wrapper;
 using FluentPOS.Shared.DTOs.People.Customers;
@@ -23,5 +17,13 @@ namespace FluentPOS.Modules.People.Core.Features.Customers.Queries
         public string CacheKey { get; protected set; }
 
         public TimeSpan? SlidingExpiration { get; protected set; }
+
+        public GetCustomerByIdQuery(Guid customerId, bool bypassCache = false, TimeSpan? slidingExpiration = null)
+        {
+            Id = customerId;
+            BypassCache = bypassCache;
+            CacheKey = CacheKeys.Common.GetEntityByIdCacheKey<Guid, Customer>(customerId);
+            SlidingExpiration = slidingExpiration;
+        }
     }
 }

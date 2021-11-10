@@ -14,6 +14,8 @@ namespace FluentPOS.Modules.Sales.Core.Enums
 
         CreditCard,
 
-        GiftCard
+        GiftCard,
+
+        Account
     }
 }

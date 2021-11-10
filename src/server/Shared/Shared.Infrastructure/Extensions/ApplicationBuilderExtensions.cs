@@ -24,6 +24,10 @@ namespace FluentPOS.Shared.Infrastructure.Extensions
     {
         public static IApplicationBuilder UseSharedInfrastructure(this IApplicationBuilder app)
         {
+            app.UseRequestLocalization(new RequestLocalizationOptions{
+                ApplyCurrentCultureToResponseHeaders = true
+            });
+
             app.UseMiddleware<GlobalExceptionHandler>();
             app.UseRouting();
 

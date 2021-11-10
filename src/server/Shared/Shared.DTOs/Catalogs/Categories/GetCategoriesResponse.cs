@@ -10,5 +10,16 @@ using System;
 
 namespace FluentPOS.Shared.DTOs.Catalogs.Categories
 {
-    public record GetCategoriesResponse(Guid Id, string Name, string Detail);
+    public class GetCategoriesResponse {
+        public Guid Id  {get; set;}
+        public string Name  {get; set;}
+
+        public string Detail {get; set;}
+
+        public GetCategoriesResponse(Guid id, string name, string detail) {
+            Id = id;
+            Name = name;
+            Detail = detail;
+        }
+    }
 }

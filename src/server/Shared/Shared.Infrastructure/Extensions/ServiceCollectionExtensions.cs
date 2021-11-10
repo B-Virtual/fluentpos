@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.Loader;
 using FluentPOS.Shared.Core.Domain;
 using FluentPOS.Shared.Core.EventLogging;
 using FluentPOS.Shared.Core.Exceptions;
@@ -36,6 +37,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
+using NetCore.AutoRegisterDi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 [assembly: InternalsVisibleTo("Bootstrapper")]
@@ -117,6 +119,35 @@ namespace FluentPOS.Shared.Infrastructure.Extensions
             services.Configure<SmsSettings>(config.GetSection(nameof(SmsSettings)));
             services.AddTransient<IEventLogService, EventLogService>();
             services.AddTransient<IEntityReferenceService, EntityReferenceService>();
+            services.AddImplementationsOf<IEntityFactory>();
+
+            return services;
+        }
+
+        private static IServiceCollection AddImplementationsOf<T>(this IServiceCollection services)
+        {
+            List<Assembly> assemblies = new List<Assembly>();
+            foreach (string assemblyPath in Directory.GetFiles(System.AppDomain.CurrentDomain.BaseDirectory, "*.dll", SearchOption.AllDirectories))
+            {
+
+                try
+                {
+                    var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
+                    assemblies.Add(assembly);
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
+
+            foreach (var ass in assemblies)
+            {
+                services.RegisterAssemblyPublicNonGenericClasses(ass)
+                    .Where(x => x.IsAssignableToOneOf(typeof(T)))
+                    .AsPublicImplementedInterfaces(ServiceLifetime.Transient);
+            }
+
             return services;
         }
 

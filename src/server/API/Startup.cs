@@ -6,6 +6,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------
 
+using FluentPOS.Modules.Accounting.Extensions;
 using FluentPOS.Modules.Catalog.Extensions;
 using FluentPOS.Modules.Identity.Extensions;
 using FluentPOS.Modules.Inventory.Extensions;
@@ -40,6 +41,7 @@ namespace FluentPOS.Bootstrapper
                 .AddCatalogModule(_config)
                 .AddPeopleModule(_config)
                 .AddSalesModule(_config)
+                .AddAccountingModule(_config)
                 .AddInventoryModule(_config);
         }
 

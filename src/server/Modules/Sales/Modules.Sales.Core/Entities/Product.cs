@@ -19,6 +19,8 @@ namespace FluentPOS.Modules.Sales.Core.Entities
 
         public int Quantity { get; set; }
 
+        public string Name { get; set; }
+
         public string Category { get; set; }
 
         public string Brand { get; set; }

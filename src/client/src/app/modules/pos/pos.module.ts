@@ -21,6 +21,7 @@ import { CustomerCartsComponent } from './components/customer-carts/customer-car
 import { CartSkeletonComponent } from './components/cart-skeleton/cart-skeleton.component';
 import { CustomerSkeletonComponent } from './components/customer-skeleton/customer-skeleton.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
+import { PaymentFormComponent } from './components/payment/payment-form.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { CheckoutComponent } from './components/checkout/checkout.component';
     CustomerCartsComponent,
     CartSkeletonComponent,
     CustomerSkeletonComponent,
-    CheckoutComponent
+    CheckoutComponent,
+    PaymentFormComponent
   ],
   imports: [
     CommonModule,
